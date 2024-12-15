@@ -1,4 +1,5 @@
 /* day1.go */
+/* https://adventofcode.com/2024/day/1 */
 /* https://learnxinyminutes.com/go/ */
 package main
 
