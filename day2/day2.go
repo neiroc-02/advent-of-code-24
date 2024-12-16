@@ -1,4 +1,4 @@
-/* day1.go */
+/* day2.go */
 /* https://adventofcode.com/2024/day/2 */
 /* https://learnxinyminutes.com/go/ */
 package main
@@ -46,40 +46,41 @@ func check_steepness_condition(prev_num int, curr_num int, curr_difference *int)
 	return false
 }
 
+func is_row_safe(nums []string) bool {
+	increasing := -1
+	prev_num := -1
+	for idx := range len(nums) {
+		curr_num, err := strconv.Atoi(nums[idx])
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		var curr_difference int
+		if prev_num == -1 {
+			prev_num = curr_num
+			continue
+		}
+		is_steep := check_steepness_condition(prev_num, curr_num, &curr_difference)
+		if is_steep {
+			return false
+		}
+		is_monotonic := check_monotonic_condition(&increasing, curr_difference)
+		if is_monotonic {
+			prev_num = curr_num
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
 func part1(file *os.File) int {
 	var count int
-	var safe bool
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		safe = true
-		increasing := -1 //-1 uninitialized, 1 true, 0 false
 		line := scanner.Text()
 		nums := strings.Fields(line)
-		prev_num := -1
-		for idx := range len(nums) {
-			curr_num, err := strconv.Atoi(nums[idx])
-			if err != nil {
-				fmt.Println(err)
-				return -1
-			}
-			var curr_difference int
-			if prev_num == -1 {
-				prev_num = curr_num
-				continue
-			}
-			is_steep := check_steepness_condition(prev_num, curr_num, &curr_difference)
-			if is_steep {
-				safe = false
-				break
-			}
-			is_monotonic := check_monotonic_condition(&increasing, curr_difference)
-			if is_monotonic {
-				prev_num = curr_num
-			} else {
-				safe = false
-				break
-			}
-		}
+		safe := is_row_safe(nums)
 		if safe == true {
 			count++
 		}
@@ -87,11 +88,30 @@ func part1(file *os.File) int {
 	return count
 }
 
-/*
 func part2(file *os.File) int {
-	return 0
+	var count int
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		nums := strings.Fields(line)
+		safe := is_row_safe(nums)
+		if safe == true {
+			count++
+		} else {
+			for i := 0; i < len(nums); i++ {
+				curr_slice := []string{}
+				curr_slice = append(curr_slice, nums[:i]...)
+				curr_slice = append(curr_slice, nums[i+1:]...)
+				safe = is_row_safe(curr_slice)
+				if safe {
+					count++
+					break
+				}
+			}
+		}
+	}
+	return count
 }
-*/
 
 func main() {
 	/* Open the file for reading */
@@ -101,12 +121,10 @@ func main() {
 		return
 	}
 	fmt.Println(part1(file))
-	/*
-		file2, err := os.Open("day2.txt")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println(part2(file2))
-	*/
+	file2, err := os.Open("day2.txt")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(part2(file2))
 }
