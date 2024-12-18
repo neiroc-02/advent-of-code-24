@@ -22,6 +22,7 @@ const WORD = "XMAS"
 
 var count = 0
 
+/* Part 1 Search */
 func search(direction int, i int, j int, word_idx int, matrix [][]byte) {
 	if word_idx > 3 {
 		count++
@@ -56,6 +57,34 @@ func search(direction int, i int, j int, word_idx int, matrix [][]byte) {
 	}
 }
 
+/* Part 2 Search */
+func x_mas(i int, j int, matrix [][]byte) int {
+	if i-1 < 0 || j-1 < 0 || i+1 >= len(matrix) || j+1 >= len(matrix[0]) {
+		return 0
+	}
+	test1 := [4]byte{
+		matrix[i-1][j-1], //top left
+		matrix[i+1][j-1], //top right
+		matrix[i-1][j+1], //bottom left
+		matrix[i+1][j+1], //bottom right
+	}
+	/*
+		TL X TR
+		X  X  X
+		BL X BR
+	*/
+	if test1 == [4]byte{'S', 'S', 'M', 'M'} {
+		return 1
+	} else if test1 == [4]byte{'M', 'M', 'S', 'S'} {
+		return 1
+	} else if test1 == [4]byte{'S', 'M', 'S', 'M'} {
+		return 1
+	} else if test1 == [4]byte{'M', 'S', 'M', 'S'} {
+		return 1
+	}
+	return 0
+}
+
 func main() {
 	file, err := os.Open("day4.txt")
 	if err != nil {
@@ -69,14 +98,19 @@ func main() {
 		characters := []byte(line)
 		matrix = append(matrix, characters)
 	}
+	part2 := 0
 	SIZE := len(matrix)
 	for i := range SIZE {
 		for j := range SIZE {
 			if matrix[i][j] == 'X' {
 				search(UNINIT, i, j, 0, matrix)
 			}
+			if matrix[i][j] == 'A' {
+				part2 += x_mas(i, j, matrix)
+			}
 		}
 	}
 	fmt.Println(count)
+	fmt.Println(part2)
 	return
 }
